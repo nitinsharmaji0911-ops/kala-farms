@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", system-ui, sans-serif;
+  --color-wine-dark: #7D2049;
+  --color-wine-main: #9A2157;
+  --color-wine-bright: #BC2D6D;
+  --color-wine-deep: #5e1134;
+  --color-gold-deep: #8C6A2E;
+  --color-gold: #B38E4B;
+  --color-gold-light: #D4AF37;
+  --color-gold-pale: #EADCB8;
+  --color-cream-soft: #fffaf0;
+  --color-cream-ivory: #FFFEF8;
+  --color-cream-yellow: #FCF9D9;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+.font-jakarta {
+  font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+}
+
+/* Smooth Scrolling & Body Baseline */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+}
+
+/* Luxury button gradient for Kala Farms */
+.btn-wine-gradient,
+.btn-primary-kala,
+button[class*="bg-gradient-to-r"],
+a[class*="bg-gradient-to-r"],
+button[class*="bg-[linear-gradient"],
+a[class*="bg-[linear-gradient"] {
+  background-color: #9A2157 !important;
+  background-image: linear-gradient(135deg, #9A2157 0%, #A1285E 50%, #BC2D6D 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 25px -4px rgba(154, 33, 87, 0.45) !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-wine-gradient:hover,
+.btn-primary-kala:hover,
+button[class*="bg-gradient-to-r"]:hover,
+a[class*="bg-gradient-to-r"]:hover,
+button[class*="bg-[linear-gradient"]:hover,
+a[class*="bg-[linear-gradient"]:hover {
+  background-color: #7D2049 !important;
+  background-image: linear-gradient(135deg, #7D2049 0%, #9A2157 100%) !important;
+  box-shadow: 0 12px 30px -4px rgba(154, 33, 87, 0.6) !important;
+  transform: translateY(-1px);
+}
+
+.btn-whatsapp-gradient {
+  background: linear-gradient(180deg, #01C03D 0%, #008B32 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.12) !important;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B38E4B 0%, #E6CA85 50%, #9D7530 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.wine-gradient-text {
+  background: linear-gradient(135deg, #9A2157 0%, #BC2D6D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-badge {
+  background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes scrollLogos {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scrollLogos {
+  animation: scrollLogos 25s linear infinite;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
