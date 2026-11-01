@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 const ADVANTAGES = [
@@ -52,6 +52,38 @@ const ADVANTAGES = [
     ],
     highlight: "Save ₹3-5 Lakhs • Zero Hidden Surcharges",
   },
+  {
+    id: "lawns",
+    badge: "Grand Scale Venues",
+    title: "Sprawling Lawn & AC Banquet",
+    subtitle: "30,000 Sq.Ft Lawn + Pillarless Hall",
+    image: "/images/night-lawn.jpg",
+    alt: "Kala Farms 30,000 Sq.Ft Night Celebration Lawn",
+    description:
+      "Central India's largest manicured open-air wedding lawn paired with a palatial air-conditioned banquet hall. Accommodate up to 2,000+ guests with separate dining boulevards and private parking for 800+ cars.",
+    perks: [
+      "Weather-proof versatility: open lawn + AC grand banquet",
+      "Dedicated dining boulevard for seamless live counters",
+      "Grand 60-ft driveway for royal baraat & fireworks",
+    ],
+    highlight: "Up to 2,000+ Guests • 800+ Car Parking",
+  },
+  {
+    id: "catering",
+    badge: "Royal Hospitality",
+    title: "Gourmet Live Boulevards",
+    subtitle: "Zero Monopolies • 0% Royalty",
+    image: "/images/royal-dining-feast.jpg",
+    alt: "Kala Farms Royal Dining Feast and Gourmet Catering",
+    description:
+      "Silver cloche service with curated royal multi-course delicacies prepared by master banquet chefs. Bring your own preferred external caterers or decorators with absolutely 0% royalty or surcharge fees.",
+    perks: [
+      "Live chef counters: Italian, Continental, Awadhi & Chaat",
+      "100% pure vegetarian live kitchen facilities available",
+      "Full flexibility to bring your trusted outside vendors",
+    ],
+    highlight: "0% Outside Vendor Royalty • Bespoke Menus",
+  },
 ];
 
 const COMPARISON_POINTS = [
@@ -79,6 +111,53 @@ const COMPARISON_POINTS = [
 
 export default function WhyAreWeBetter({ onOpenPlanner }) {
   const [showComparison, setShowComparison] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const carouselRef = useRef(null);
+
+  // Update active dot index based on scroll position
+  const handleScroll = () => {
+    if (!carouselRef.current) return;
+    const { scrollLeft, children } = carouselRef.current;
+    if (!children.length) return;
+
+    let closestIdx = 0;
+    let minDiff = Infinity;
+    const containerLeft = carouselRef.current.getBoundingClientRect().left;
+
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      const childLeft = child.getBoundingClientRect().left;
+      const diff = Math.abs(childLeft - containerLeft);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
+    }
+    setActiveIndex(closestIdx);
+  };
+
+  const scrollToIndex = (index) => {
+    if (!carouselRef.current) return;
+    const children = carouselRef.current.children;
+    if (children[index]) {
+      children[index].scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+      setActiveIndex(index);
+    }
+  };
+
+  const handlePrev = () => {
+    const nextIdx = activeIndex === 0 ? ADVANTAGES.length - 1 : activeIndex - 1;
+    scrollToIndex(nextIdx);
+  };
+
+  const handleNext = () => {
+    const nextIdx = activeIndex === ADVANTAGES.length - 1 ? 0 : activeIndex + 1;
+    scrollToIndex(nextIdx);
+  };
 
   return (
     <section
@@ -89,85 +168,150 @@ export default function WhyAreWeBetter({ onOpenPlanner }) {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-48 bg-gradient-to-b from-stone-200/30 to-transparent pointer-events-none blur-3xl -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Block */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12 lg:mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#9A2157]/10 px-4 py-1.5 border border-[#9A2157]/20">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#9A2157] font-plus-jakarta-sans">
-              The Kala Farms Advantage
-            </span>
+        {/* Header Block with Carousel Controls */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 lg:mb-14">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#9A2157]/10 px-4 py-1.5 border border-[#9A2157]/20">
+              <span className="w-2 h-2 rounded-full bg-[#9A2157] animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#9A2157] font-plus-jakarta-sans">
+                The Kala Farms Advantage
+              </span>
+            </div>
+
+            <h2 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C2431] leading-tight">
+              Why Central India Chooses <br />
+              <span className="text-[#9A2157]">Kala Farms</span>
+            </h2>
+
+            <p className="text-sm sm:text-base text-gray-600 font-plus-jakarta-sans leading-relaxed">
+              Explore why 300+ royal families choose our 25-acre destination estate for stress-free, luxurious wedding celebrations.
+            </p>
           </div>
 
-          <h2 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C2431] leading-tight">
-            Why Central India Chooses <br className="hidden sm:inline" />
-            <span className="text-[#9A2157]">Kala Farms</span>
-          </h2>
+          {/* Desktop & Tablet Carousel Arrows & Counter */}
+          <div className="flex items-center gap-4 self-start md:self-end">
+            {/* Slide Counter */}
+            <div className="text-xs sm:text-sm font-semibold text-gray-500 font-plus-jakarta-sans px-3 py-1.5 rounded-full bg-white border border-stone-200 shadow-sm">
+              <span className="text-[#9A2157] font-bold">0{activeIndex + 1}</span> / 0{ADVANTAGES.length}
+            </div>
 
-          <p className="text-base sm:text-lg text-gray-600 font-plus-jakarta-sans leading-relaxed">
-            Experience the rare luxury of a private 25-acre destination estate designed specifically to make royal Indian weddings stress-free, magnificent, and unforgettable.
-          </p>
+            {/* Prev Arrow */}
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Previous advantage"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white border border-stone-200 shadow-sm flex items-center justify-center text-gray-700 hover:bg-[#9A2157] hover:text-white hover:border-[#9A2157] transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+              <svg className="w-5 h-5 stroke-current stroke-[2.5] fill-none" viewBox="0 0 24 24">
+                <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {/* Next Arrow */}
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Next advantage"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white border border-stone-200 shadow-sm flex items-center justify-center text-gray-700 hover:bg-[#9A2157] hover:text-white hover:border-[#9A2157] transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+              <svg className="w-5 h-5 stroke-current stroke-[2.5] fill-none" viewBox="0 0 24 24">
+                <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* 3 Pillars of Distinction Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {ADVANTAGES.map((card) => (
-            <div
-              key={card.id}
-              className="group bg-white rounded-3xl overflow-hidden border border-stone-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(154,33,87,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
-            >
-              {/* Photo Header */}
-              <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-stone-900">
-                <img
-                  src={card.image}
-                  alt={card.alt}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        {/* Carousel Container (Native Touch Swipe + Snap on Mobile & Desktop) */}
+        <div className="relative">
+          <div
+            ref={carouselRef}
+            onScroll={handleScroll}
+            className="flex gap-5 sm:gap-6 lg:gap-8 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-4 px-1"
+          >
+            {ADVANTAGES.map((card, idx) => (
+              <div
+                key={card.id}
+                className="w-[86vw] max-w-[340px] sm:w-[380px] sm:max-w-[380px] lg:w-[390px] lg:max-w-[390px] shrink-0 snap-center sm:snap-start group bg-white rounded-3xl overflow-hidden border border-stone-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(154,33,87,0.12)] transition-all duration-300 flex flex-col select-none"
+              >
+                {/* Photo Header */}
+                <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-stone-900 shrink-0">
+                  <img
+                    src={card.image}
+                    alt={card.alt}
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out pointer-events-none"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
 
-                {/* Top Badge */}
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="bg-black/60 backdrop-blur-md text-amber-200 border border-white/20 text-xs font-semibold px-3 py-1 rounded-full">
-                    {card.badge}
-                  </span>
-                </div>
-
-                {/* Bottom Highlight Overlay */}
-                <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
-                  <p className="text-xs font-medium uppercase tracking-wider text-amber-300">
-                    {card.subtitle}
-                  </p>
-                  <h3 className="font-playfair text-xl sm:text-2xl font-bold text-white">
-                    {card.title}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Content Body */}
-              <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-5">
-                <p className="text-sm text-gray-600 leading-relaxed font-plus-jakarta-sans">
-                  {card.description}
-                </p>
-
-                {/* Key Checklist Points */}
-                <div className="space-y-2.5 pt-2 border-t border-stone-100">
-                  {card.perks.map((perk, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700">
-                      <span className="text-[#9A2157] font-bold mt-0.5 shrink-0">✓</span>
-                      <span>{perk}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom Highlight Strip */}
-                <div className="mt-auto pt-3">
-                  <div className="rounded-xl bg-[#FAF6F0] p-3 text-center border border-[#9A2157]/15">
-                    <span className="text-xs font-bold text-[#9A2157]">
-                      ★ {card.highlight}
+                  {/* Top Badge */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <span className="bg-black/65 backdrop-blur-md text-amber-200 border border-white/20 text-xs font-semibold px-3 py-1 rounded-full">
+                      {card.badge}
                     </span>
+                  </div>
+
+                  {/* Bottom Highlight Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 z-10 text-white pointer-events-none">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-300">
+                      {card.subtitle}
+                    </p>
+                    <h3 className="font-playfair text-xl sm:text-2xl font-bold text-white">
+                      {card.title}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Content Body */}
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-plus-jakarta-sans">
+                    {card.description}
+                  </p>
+
+                  {/* Key Checklist Points */}
+                  <div className="space-y-2 pt-2 border-t border-stone-100">
+                    {card.perks.map((perk, pIdx) => (
+                      <div key={pIdx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                        <span className="text-[#9A2157] font-bold shrink-0">✓</span>
+                        <span>{perk}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bottom Highlight Strip */}
+                  <div className="mt-auto pt-2">
+                    <div className="rounded-xl bg-[#FAF6F0] p-3 text-center border border-[#9A2157]/15">
+                      <span className="text-xs font-bold text-[#9A2157]">
+                        ★ {card.highlight}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Carousel Dot Indicators */}
+          <div className="flex items-center justify-center gap-2 pt-6">
+            {ADVANTAGES.map((_, dotIdx) => (
+              <button
+                key={dotIdx}
+                type="button"
+                onClick={() => scrollToIndex(dotIdx)}
+                aria-label={`Go to slide ${dotIdx + 1}`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  activeIndex === dotIdx
+                    ? "w-8 h-2.5 bg-[#9A2157]"
+                    : "w-2.5 h-2.5 bg-stone-300 hover:bg-stone-400"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Mobile Swipe Hint */}
+          <div className="sm:hidden text-center pt-2">
+            <span className="text-[11px] text-gray-400 font-medium">
+              ← Swipe horizontally to explore more →
+            </span>
+          </div>
         </div>
 
         {/* Interactive Comparison Section Toggle */}
