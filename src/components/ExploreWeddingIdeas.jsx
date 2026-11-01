@@ -240,26 +240,25 @@ export default function ExploreWeddingIdeas({ onOpenPlanner }) {
           </p>
         </div>
 
-        {/* Categories Carousel with Authentic Photos */}
+        {/* Categories Carousel with Authentic Photos (Display only, non-clickable) */}
         <div className="no-scrollbar z-10 flex w-full justify-start gap-4 sm:gap-6 overflow-x-auto px-4 py-8 md:mx-auto md:w-full md:justify-center md:py-12 touch-pan-x select-none">
           {categories.map((cat) => (
             <div
               key={cat.id}
-              onClick={() => handleOpenIdeabook(cat.id)}
-              className="flex flex-col items-center justify-center gap-2.5 md:gap-3 shrink-0 cursor-pointer group"
+              className="flex flex-col items-center justify-center gap-2.5 md:gap-3 shrink-0 cursor-default select-none"
             >
               {/* Circular Real Photo Thumbnail */}
-              <div className="relative flex items-center justify-center rounded-full border-4 border-white bg-white shadow-md aspect-square w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] md:w-[110px] md:h-[110px] overflow-hidden group-hover:border-[#9A2157] group-hover:shadow-xl transition-all duration-300 ring-1 ring-gray-200 group-hover:ring-4 group-hover:ring-[#9A2157]/20">
+              <div className="relative flex items-center justify-center rounded-full border-4 border-white bg-white shadow-md aspect-square w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] md:w-[110px] md:h-[110px] overflow-hidden ring-1 ring-gray-200">
                 <img
                   src={cat.image}
                   alt={cat.name}
-                  className="w-full h-full object-cover filter brightness-[0.92] group-hover:scale-115 transition-transform duration-500"
+                  className="w-full h-full object-cover filter brightness-[0.95]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent group-hover:from-[#9A2157]/40 transition-colors" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
               </div>
 
               {/* Title & Subtitle */}
-              <span className="text-center text-xs sm:text-sm font-semibold text-[#1C2431] group-hover:text-[#9A2157] transition-colors whitespace-nowrap">
+              <span className="text-center text-xs sm:text-sm font-semibold text-[#1C2431] whitespace-nowrap">
                 {cat.name}
               </span>
               <span className="text-[10px] sm:text-[11px] text-gray-400 -mt-2 font-plus-jakarta-sans whitespace-nowrap">
@@ -267,34 +266,6 @@ export default function ExploreWeddingIdeas({ onOpenPlanner }) {
               </span>
             </div>
           ))}
-
-          {/* "And More" Pill */}
-          <div
-            onClick={() => handleOpenIdeabook("all")}
-            className="flex flex-col items-center justify-center gap-2.5 md:gap-3 shrink-0 cursor-pointer group"
-          >
-            <div className="flex flex-col items-center justify-center rounded-full border-4 border-white bg-[#9A2157] text-white shadow-md aspect-square w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] md:w-[110px] md:h-[110px] group-hover:bg-[#7D2049] group-hover:scale-105 transition-all">
-              <svg
-                className="h-8 w-8 sm:h-9 sm:w-9"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <span className="text-center text-xs sm:text-sm font-semibold text-[#9A2157] whitespace-nowrap">
-              and more
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 -mt-2 whitespace-nowrap">
-              Full Ideabook
-            </span>
-          </div>
         </div>
 
         {/* View All Button */}
