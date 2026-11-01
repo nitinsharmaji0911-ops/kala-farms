@@ -179,8 +179,26 @@ export default function ClientReviewsSection() {
 
   // Executed Weddings Carousel State
   const [weddingIndex, setWeddingIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+
+  // Swipe / Drag tracking for Reels
+  const reelTouchRef = useRef({
+    startX: 0,
+    startY: 0,
+    endX: 0,
+    endY: 0,
+    startTime: 0,
+    isDragging: false,
+  });
+
+  // Swipe / Drag tracking for Executed Weddings
+  const weddingTouchRef = useRef({
+    startX: 0,
+    startY: 0,
+    endX: 0,
+    endY: 0,
+    startTime: 0,
+    isDragging: false,
+  });
 
   const total = reelsData.length;
   const prevIndex = (currentIndex - 1 + total) % total;
@@ -192,6 +210,83 @@ export default function ClientReviewsSection() {
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % total);
+  };
+
+  // Reels Touch Gestures (Mobile Swipe)
+  const handleReelTouchStart = (e) => {
+    const t = e.touches[0];
+    reelTouchRef.current = {
+      startX: t.clientX,
+      startY: t.clientY,
+      endX: t.clientX,
+      endY: t.clientY,
+      startTime: Date.now(),
+      isDragging: true,
+    };
+  };
+
+  const handleReelTouchMove = (e) => {
+    if (!reelTouchRef.current.isDragging) return;
+    const t = e.touches[0];
+    reelTouchRef.current.endX = t.clientX;
+    reelTouchRef.current.endY = t.clientY;
+  };
+
+  const handleReelTouchEnd = () => {
+    if (!reelTouchRef.current.isDragging) return;
+    reelTouchRef.current.isDragging = false;
+    const { startX, startY, endX, endY, startTime } = reelTouchRef.current;
+    const diffX = startX - endX;
+    const diffY = startY - endY;
+    const elapsed = Date.now() - startTime;
+
+    // Only trigger if horizontal swipe was dominant (preserves vertical page scrolling)
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      const isSwipe = Math.abs(diffX) > 35 || (elapsed < 280 && Math.abs(diffX) > 18);
+      if (isSwipe) {
+        if (diffX > 0) {
+          handleNext(); // Swiped left -> show next
+        } else {
+          handlePrev(); // Swiped right -> show prev
+        }
+      }
+    }
+  };
+
+  // Reels Mouse Drag Gestures (Desktop Drag)
+  const handleReelMouseDown = (e) => {
+    reelTouchRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      endX: e.clientX,
+      endY: e.clientY,
+      startTime: Date.now(),
+      isDragging: true,
+    };
+  };
+
+  const handleReelMouseMove = (e) => {
+    if (!reelTouchRef.current.isDragging) return;
+    reelTouchRef.current.endX = e.clientX;
+    reelTouchRef.current.endY = e.clientY;
+  };
+
+  const handleReelMouseUp = () => {
+    if (!reelTouchRef.current.isDragging) return;
+    const { startX, endX } = reelTouchRef.current;
+    reelTouchRef.current.isDragging = false;
+    const diffX = startX - endX;
+    if (Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+  };
+
+  const handleReelMouseLeave = () => {
+    reelTouchRef.current.isDragging = false;
   };
 
   const currentReel = reelsData[currentIndex];
@@ -211,24 +306,80 @@ export default function ClientReviewsSection() {
     setWeddingIndex((prev) => (prev + 1) % totalWeddings);
   };
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
+  // Executed Weddings Touch Gestures (Mobile Swipe)
+  const handleWeddingTouchStart = (e) => {
+    const t = e.touches[0];
+    weddingTouchRef.current = {
+      startX: t.clientX,
+      startY: t.clientY,
+      endX: t.clientX,
+      endY: t.clientY,
+      startTime: Date.now(),
+      isDragging: true,
+    };
   };
 
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+  const handleWeddingTouchMove = (e) => {
+    if (!weddingTouchRef.current.isDragging) return;
+    const t = e.touches[0];
+    weddingTouchRef.current.endX = t.clientX;
+    weddingTouchRef.current.endY = t.clientY;
   };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    if (distance > 50) {
-      handleNextWedding();
-    } else if (distance < -50) {
-      handlePrevWedding();
+  const handleWeddingTouchEnd = () => {
+    if (!weddingTouchRef.current.isDragging) return;
+    weddingTouchRef.current.isDragging = false;
+    const { startX, startY, endX, endY, startTime } = weddingTouchRef.current;
+    const diffX = startX - endX;
+    const diffY = startY - endY;
+    const elapsed = Date.now() - startTime;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      const isSwipe = Math.abs(diffX) > 35 || (elapsed < 280 && Math.abs(diffX) > 18);
+      if (isSwipe) {
+        if (diffX > 0) {
+          handleNextWedding();
+        } else {
+          handlePrevWedding();
+        }
+      }
     }
-    setTouchStart(null);
-    setTouchEnd(null);
+  };
+
+  // Executed Weddings Mouse Drag Gestures
+  const handleWeddingMouseDown = (e) => {
+    weddingTouchRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      endX: e.clientX,
+      endY: e.clientY,
+      startTime: Date.now(),
+      isDragging: true,
+    };
+  };
+
+  const handleWeddingMouseMove = (e) => {
+    if (!weddingTouchRef.current.isDragging) return;
+    weddingTouchRef.current.endX = e.clientX;
+    weddingTouchRef.current.endY = e.clientY;
+  };
+
+  const handleWeddingMouseUp = () => {
+    if (!weddingTouchRef.current.isDragging) return;
+    const { startX, endX } = weddingTouchRef.current;
+    weddingTouchRef.current.isDragging = false;
+    const diffX = startX - endX;
+    if (Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        handleNextWedding();
+      } else {
+        handlePrevWedding();
+      }
+    }
+  };
+
+  const handleWeddingMouseLeave = () => {
+    weddingTouchRef.current.isDragging = false;
   };
 
   const currentWedding = executedWeddings[weddingIndex];
@@ -253,7 +404,16 @@ export default function ClientReviewsSection() {
         </div>
 
         {/* 3D Coverflow Carousel matching user's exact screenshot format */}
-        <div className="relative mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 select-none overflow-hidden sm:overflow-visible">
+        <div
+          onTouchStart={handleReelTouchStart}
+          onTouchMove={handleReelTouchMove}
+          onTouchEnd={handleReelTouchEnd}
+          onMouseDown={handleReelMouseDown}
+          onMouseMove={handleReelMouseMove}
+          onMouseUp={handleReelMouseUp}
+          onMouseLeave={handleReelMouseLeave}
+          className="relative mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 select-none overflow-hidden sm:overflow-visible touch-pan-y cursor-grab active:cursor-grabbing"
+        >
           <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 py-4">
             
             {/* LEFT CARD (Side Reel Preview) */}
@@ -264,9 +424,9 @@ export default function ClientReviewsSection() {
               <img
                 src={prevReel.poster}
                 alt={prevReel.title}
-                className="w-full h-full object-cover filter brightness-[0.85] transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover filter brightness-[0.85] transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
               />
-              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute inset-0 bg-black/25 pointer-events-none" />
 
               {/* Navigation Controls: Left Arrow (<) and Play button (▶) */}
               <div className="absolute inset-0 flex items-center justify-center gap-1.5 sm:gap-3 z-10 pointer-events-auto">
@@ -312,7 +472,7 @@ export default function ClientReviewsSection() {
                 muted={isMuted}
                 playsInline
                 preload="auto"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
               />
 
               {/* Top Vignette Gradient */}
@@ -322,7 +482,7 @@ export default function ClientReviewsSection() {
               <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 via-black/15 to-transparent pointer-events-none" />
 
               {/* Top-Left View Count Badge (Exact match to screenshot: cyan eye + view count) */}
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white shadow-md border border-white/10">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white shadow-md border border-white/10 pointer-events-none">
                 <svg className="w-3.5 h-3.5 text-[#00F0FF] fill-current" viewBox="0 0 24 24">
                   <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                 </svg>
@@ -337,7 +497,7 @@ export default function ClientReviewsSection() {
                   e.stopPropagation();
                   setIsMuted(!isMuted);
                 }}
-                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/75 backdrop-blur-md flex items-center justify-center text-white hover:bg-black transition-colors shadow-md border border-white/10"
+                className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/75 backdrop-blur-md flex items-center justify-center text-white hover:bg-black transition-colors shadow-md border border-white/10 pointer-events-auto"
                 aria-label={isMuted ? "Unmute Audio" : "Mute Audio"}
               >
                 {isMuted ? (
@@ -360,9 +520,9 @@ export default function ClientReviewsSection() {
               <img
                 src={nextReel.poster}
                 alt={nextReel.title}
-                className="w-full h-full object-cover filter brightness-[0.85] transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover filter brightness-[0.85] transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
               />
-              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute inset-0 bg-black/25 pointer-events-none" />
 
               {/* Navigation Controls: Play button (▶) and Right Arrow (>) */}
               <div className="absolute inset-0 flex items-center justify-center gap-1.5 sm:gap-3 z-10 pointer-events-auto">
@@ -411,6 +571,14 @@ export default function ClientReviewsSection() {
             ))}
           </div>
 
+          {/* Mobile Swipe Hint */}
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 sm:hidden text-gray-400 text-[11px] font-medium font-plus-jakarta-sans">
+            <svg className="w-3.5 h-3.5 animate-pulse text-[#9A2157]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            <span>Swipe left or right to switch reels</span>
+          </div>
+
           {/* Follow on Instagram link */}
           <div className="flex items-center justify-center mt-5">
             <a
@@ -443,10 +611,14 @@ export default function ClientReviewsSection() {
 
         {/* 3D Coverflow Carousel matching user's exact carousel format without black bg or badges */}
         <div
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          className="relative mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 select-none overflow-hidden sm:overflow-visible"
+          onTouchStart={handleWeddingTouchStart}
+          onTouchMove={handleWeddingTouchMove}
+          onTouchEnd={handleWeddingTouchEnd}
+          onMouseDown={handleWeddingMouseDown}
+          onMouseMove={handleWeddingMouseMove}
+          onMouseUp={handleWeddingMouseUp}
+          onMouseLeave={handleWeddingMouseLeave}
+          className="relative mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 select-none overflow-hidden sm:overflow-visible touch-pan-y cursor-grab active:cursor-grabbing"
         >
           <div className="relative flex items-center justify-center gap-3 sm:gap-6 md:gap-8 py-2">
             
@@ -561,6 +733,14 @@ export default function ClientReviewsSection() {
                 }`}
               />
             ))}
+          </div>
+
+          {/* Mobile Swipe Hint */}
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 sm:hidden text-gray-400 text-[11px] font-medium font-plus-jakarta-sans">
+            <svg className="w-3.5 h-3.5 animate-pulse text-[#9A2157]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            <span>Swipe left or right to explore setups</span>
           </div>
         </div>
       </div>
